@@ -1,0 +1,22 @@
+{
+  "name": "chess-game",
+  "version": "1.0.0",
+  "description": "A simple playable chess game implemented in HTML, CSS, and JavaScript.",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "live-server src"
+  },
+  "keywords": [
+    "chess",
+    "game",
+    "html",
+    "css",
+    "javascript"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "live-server": "^1.2.1"
+  }
+}
