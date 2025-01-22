@@ -43,14 +43,16 @@ function handleSquareClick(event) {
 
     console.log(`Square clicked: (${row}, ${col})`);
 
-    if (selectedSquare) {
+    if (selectedSquare) {//second click on the piece
         const [fromRow, fromCol] = selectedSquare;
         console.log(`Selected square: (${fromRow}, ${fromCol})`);
         if (isValidMove(fromRow, fromCol, row, col)) {
             console.log(`Move from (${fromRow}, ${fromCol}) to (${row}, ${col}) is valid`);
+            
             boardState[row][col] = boardState[fromRow][fromCol];
             boardState[fromRow][fromCol] = '.';
             selectedSquare = null;
+            console.log(isCheck() ? 'Check!' : 'No check');//checkmate or not
             currentPlayer = currentPlayer === 'white' ? 'black' : 'white';
             drawBoard();
         } else {
@@ -58,14 +60,14 @@ function handleSquareClick(event) {
             selectedSquare = null;
             drawBoard();
         }
-    } else {
+    } else {//first click on the piece
         if (isCurrentPlayerPiece(row, col)) {
-            console.log(`Piece at (${row}, ${col}) is current player's piece`);
+            // console.log(`Piece at (${row}, ${col}) is current player's piece`);
             selectedSquare = [row, col];
             highlightSquare(row, col);
             highlightPossibleMoves(row, col);
         } else {
-            console.log(`Piece at (${row}, ${col}) is not current player's piece`);
+            // console.log(`Piece at (${row}, ${col}) is not current player's piece`);
         }
     }
 }
@@ -80,11 +82,39 @@ function highlightPossibleMoves(row, col) {
     });
 }
 
+function isCheck() {
+    // Find king position
+    let kingRow = -1;
+    let kingCol = -1;
+    boardState.forEach((row, rowIndex) => {
+        row.forEach((piece, colIndex) => {
+            if (piece === (currentPlayer === 'white' ? 'k' : 'K')) {
+                kingRow = rowIndex;
+                kingCol = colIndex;
+                console.log(`King found at (${kingRow}, ${kingCol})`);
+            }
+        });
+    });
+
+    // Check if any opponent piece can capture the king
+    for (let row = 0; row < 8; row++) {
+        for (let col = 0; col < 8; col++) {
+            if (isCurrentPlayerPiece(row, col)) {
+                if (isValidMove(row, col, kingRow, kingCol)) {
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
 function isCurrentPlayerPiece(row, col) {
     const piece = boardState[row][col];
-    if(piece === EMPTY_SQUARE) {
+    if (piece === EMPTY_SQUARE) {
         return false;
-    } 
+    }
     if (currentPlayer === 'white') {
         return piece === piece.toUpperCase();
     } else {
@@ -101,7 +131,7 @@ function isValidMove(fromRow, fromCol, toRow, toCol) {
 
     // Prevent capturing own pieces
     if (isCurrentPlayerPiece(toRow, toCol)) {
-        console.log('Move invalid: cannot capture own piece');
+        // console.log('Move invalid: cannot capture own piece');
         return false;
     }
 
@@ -126,25 +156,25 @@ function isValidMove(fromRow, fromCol, toRow, toCol) {
 
 
 function isValidPawnMove(fromRow, fromCol, toRow, toCol, isWhite, direction) {
-    console.log(`Validating pawn move from (${fromRow}, ${fromCol}) to (${toRow}, ${toCol})`);
+    // console.log(`Validating pawn move from (${fromRow}, ${fromCol}) to (${toRow}, ${toCol})`);
     if (toRow < 0 || toRow >= 8 || toCol < 0 || toCol >= 8) {
         return false;
     }
     if (fromCol === toCol && boardState[toRow][toCol] === EMPTY_SQUARE) {
         if (toRow === fromRow + direction) {
-            console.log('Valid single step move');
+            // console.log('Valid single step move');
             return true;
         }
         if (((isWhite && fromRow === WHITE_PAWN_START_ROW) || (!isWhite && fromRow === BLACK_PAWN_START_ROW)) && toRow === fromRow + 2 * direction && boardState[fromRow + direction][fromCol] === EMPTY_SQUARE) {
-            console.log('Valid double step move');
+            // console.log('Valid double step move');
             return true;
         }
     }
     if (Math.abs(fromCol - toCol) === 1 && toRow === fromRow + direction && boardState[toRow][toCol] !== EMPTY_SQUARE && !isCurrentPlayerPiece(toRow, toCol)) {
-        console.log('Valid capture move');
+        // console.log('Valid capture move');
         return true;
     }
-    console.log('Invalid pawn move');
+    // console.log('Invalid pawn move');
     return false;
 }
 
@@ -343,5 +373,6 @@ function getKingMoves(row, col, moves) {
         }
     });
 }
+
 
 drawBoard();
