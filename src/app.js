@@ -35,6 +35,8 @@ function drawBoard() {
             board.appendChild(square);
         }
     }
+    console.log(isCheck() ? 'Check!' : 'No check');//checkmate or not
+
 }
 
 function handleSquareClick(event) {
@@ -52,7 +54,6 @@ function handleSquareClick(event) {
             boardState[row][col] = boardState[fromRow][fromCol];
             boardState[fromRow][fromCol] = '.';
             selectedSquare = null;
-            console.log(isCheck() ? 'Check!' : 'No check');//checkmate or not
             currentPlayer = currentPlayer === 'white' ? 'black' : 'white';
             drawBoard();
         } else {
@@ -88,7 +89,7 @@ function isCheck() {
     let kingCol = -1;
     boardState.forEach((row, rowIndex) => {
         row.forEach((piece, colIndex) => {
-            if (piece === (currentPlayer === 'white' ? 'k' : 'K')) {
+            if (piece === (currentPlayer === 'white' ? 'K' : 'k')) {
                 kingRow = rowIndex;
                 kingCol = colIndex;
                 console.log(`King found at (${kingRow}, ${kingCol})`);
@@ -99,8 +100,8 @@ function isCheck() {
     // Check if any opponent piece can capture the king
     for (let row = 0; row < 8; row++) {
         for (let col = 0; col < 8; col++) {
-            if (isCurrentPlayerPiece(row, col)) {
-                if (isValidMove(row, col, kingRow, kingCol)) {
+            if (isCurrentPlayerPiece(row, col, currentPlayer === 'white' ? 'black' : 'white')) {
+                if (isValidMove(row, col, kingRow, kingCol, currentPlayer === 'white' ? 'black' : 'white')) {
                     return true;
                 }
             }
@@ -110,43 +111,49 @@ function isCheck() {
     return false;
 }
 
-function isCurrentPlayerPiece(row, col) {
+function isCurrentPlayerPiece(row, col, player = currentPlayer) {
     const piece = boardState[row][col];
     if (piece === EMPTY_SQUARE) {
         return false;
     }
-    if (currentPlayer === 'white') {
+    if (player === 'white') {
         return piece === piece.toUpperCase();
     } else {
         return piece === piece.toLowerCase();
     }
 }
 
-function isValidMove(fromRow, fromCol, toRow, toCol) {
-    const piece = boardState[fromRow][fromCol].toLowerCase();
+function isValidMove(fromRow, fromCol, toRow, toCol, player = currentPlayer) {
+    const piece = boardState[fromRow][fromCol];
     const isWhite = boardState[fromRow][fromCol] === boardState[fromRow][fromCol].toUpperCase();
     const direction = isWhite ? -1 : 1;
 
     console.log(`Validating move for piece: ${piece} from (${fromRow}, ${fromCol}) to (${toRow}, ${toCol})`);
 
     // Prevent capturing own pieces
-    if (isCurrentPlayerPiece(toRow, toCol)) {
-        // console.log('Move invalid: cannot capture own piece');
+    if (isCurrentPlayerPiece(toRow, toCol, player)) {
+        console.log('Move invalid: cannot capture own piece');
         return false;
     }
 
     switch (piece) {
-        case 'p': // Pawn
+        case 'p':
+        case 'P': // Pawn
             return isValidPawnMove(fromRow, fromCol, toRow, toCol, isWhite, direction);
-        case 'r': // Rook
+        case 'r':
+        case 'R': // Rook
             return isValidRookMove(fromRow, fromCol, toRow, toCol);
-        case 'n': // Knight
+        case 'n':
+        case 'N': // Knight
             return isValidKnightMove(fromRow, fromCol, toRow, toCol);
-        case 'b': // Bishop
+        case 'b':
+        case 'B': // Bishop
             return isValidBishopMove(fromRow, fromCol, toRow, toCol);
-        case 'q': // Queen
+        case 'q':
+        case 'Q': // Queen
             return isValidQueenMove(fromRow, fromCol, toRow, toCol);
-        case 'k': // King
+        case 'k':
+        case 'K': // King
             return isValidKingMove(fromRow, fromCol, toRow, toCol);
         default:
             console.log('Move invalid: unknown piece type');
