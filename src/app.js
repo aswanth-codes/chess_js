@@ -102,6 +102,10 @@ function isCheck() {
         for (let col = 0; col < 8; col++) {
             if (isCurrentPlayerPiece(row, col, currentPlayer === 'white' ? 'black' : 'white')) {
                 if (isValidMove(row, col, kingRow, kingCol, currentPlayer === 'white' ? 'black' : 'white')) {
+                    const ksquare = document.querySelector(`[data-row='${kingRow}'][data-col='${kingCol}']`);
+                    if (ksquare) {
+                        ksquare.classList.add('kingcheck');
+                    }
                     return true;
                 }
             }
