@@ -84,29 +84,50 @@ function highlightPossibleMoves(row, col) {
 }
 
 function isCheck() {
-    // Find king position
-    let kingRow = -1;
-    let kingCol = -1;
+    const kingPositions = { white: null, black: null };
+
+    // Find both kings' positions
     boardState.forEach((row, rowIndex) => {
         row.forEach((piece, colIndex) => {
-            if (piece === (currentPlayer === 'white' ? 'K' : 'k')) {
-                kingRow = rowIndex;
-                kingCol = colIndex;
-                console.log(`King found at (${kingRow}, ${kingCol})`);
+            if (piece === 'K') {
+                kingPositions.white = [rowIndex, colIndex];
+            } else if (piece === 'k') {
+                kingPositions.black = [rowIndex, colIndex];
             }
         });
     });
 
-    // Check if any opponent piece can capture the king
-    for (let row = 0; row < 8; row++) {
-        for (let col = 0; col < 8; col++) {
-            if (isCurrentPlayerPiece(row, col, currentPlayer === 'white' ? 'black' : 'white')) {
-                if (isValidMove(row, col, kingRow, kingCol, currentPlayer === 'white' ? 'black' : 'white')) {
-                    const ksquare = document.querySelector(`[data-row='${kingRow}'][data-col='${kingCol}']`);
-                    if (ksquare) {
-                        ksquare.classList.add('kingcheck');
+    // Check if any opponent piece can capture the white king
+    if (kingPositions.white) {
+        const [kingRow, kingCol] = kingPositions.white;
+        for (let row = 0; row < 8; row++) {
+            for (let col = 0; col < 8; col++) {
+                if (isCurrentPlayerPiece(row, col, 'black')) {
+                    if (isValidMove(row, col, kingRow, kingCol, 'black')) {
+                        const ksquare = document.querySelector(`[data-row='${kingRow}'][data-col='${kingCol}']`);
+                        if (ksquare) {
+                            ksquare.classList.add('kingcheck');
+                        }
+                        return true;
                     }
-                    return true;
+                }
+            }
+        }
+    }
+
+    // Check if any opponent piece can capture the black king
+    if (kingPositions.black) {
+        const [kingRow, kingCol] = kingPositions.black;
+        for (let row = 0; row < 8; row++) {
+            for (let col = 0; col < 8; col++) {
+                if (isCurrentPlayerPiece(row, col, 'white')) {
+                    if (isValidMove(row, col, kingRow, kingCol, 'white')) {
+                        const ksquare = document.querySelector(`[data-row='${kingRow}'][data-col='${kingCol}']`);
+                        if (ksquare) {
+                            ksquare.classList.add('kingcheck');
+                        }
+                        return true;
+                    }
                 }
             }
         }
